@@ -3,6 +3,7 @@ import { Tweet } from "../models/tweet.model.js";
 import { ApiError } from "../utils/apiError.js";
 import { ApiResponse } from "../utils/apiResponse.js";
 import asyncHandler from "../utils/asyncHandler.js"
+import { isValidTweetId, isValidUserId } from "../utils/validId.js";
 
 
 const createTweet = asyncHandler(async (req, res) => {
@@ -33,9 +34,7 @@ const getUserTweet = asyncHandler(async (req, res) => {
         throw new ApiError(400, "User ID is required.");
     }
 
-    if (!isValidObjectId(userId)) {
-        throw new ApiError(400, "Invalid User ID format.");
-    }
+    isValidUserId(userId);
 
     const tweets = await Tweet.find({ owner: userId });
 
@@ -49,23 +48,20 @@ const getUserTweet = asyncHandler(async (req, res) => {
         );
 });
 
-
 const updateTweet = asyncHandler(async (req, res) => {
     const { tweetId } = req.params;
 
-    if (!isValidObjectId(tweetId)) {
-        throw new ApiError(400, "Invalid tweet id format.");
-
-    }
+    isValidTweetId(tweetId);
 
     if (!tweetId) {
-        throw new ApiError(404, "Tweet does not exists.")
+        throw new ApiError(404, "Tweet id is requied.")
     }
 
     const { content } = req.body;
+
     const tweet = await Tweet.findByIdAndUpdate(tweetId,
         {
-            $set: {
+            "$set": {
                 content: content
             }
         },
@@ -73,6 +69,10 @@ const updateTweet = asyncHandler(async (req, res) => {
             new: true
         }
     )
+
+    if(!tweet){
+        throw new ApiError(500,"Error while updating the tweet.")
+    }
 
     return res.status(200)
         .json(
@@ -88,10 +88,7 @@ const deleteTweet = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Tweet id is required.");
     }
 
-    if (!isValidObjectId(tweetId)) {
-        throw new ApiError(400, "Invalid tweet id format.");
-
-    }
+    isValidTweetId(tweetId);
 
     const tweet = await Tweet.findByIdAndDelete(tweetId);
 
