@@ -4,7 +4,7 @@ import { ApiError } from "../utils/apiError.js"
 import { ApiResponse } from "../utils/apiResponse.js"
 import asyncHandler from "../utils/asyncHandler.js"
 import { uploadOnCloudinary } from "../utils/cloudinary.js"
-import isValidVideoId from "../utils/videoUtils.js"
+import {isValidVideoId} from "../utils/validId.js"
 
 
 
@@ -61,7 +61,12 @@ const publishAVideo = asyncHandler(async (req, res) => {
 const getVideoById = asyncHandler(async (req, res) => {
     const { videoId } = req.params
 
+    if(!videoId){
+        throw new ApiError(400, "Video id is required.")
+    }
+
     isValidVideoId(videoId);
+
 
     const video = await Video.findById(videoId);
 
@@ -131,6 +136,11 @@ const getVideoById = asyncHandler(async (req, res) => {
 //not required to provide all fields while updating the video details
 const updateVideo = asyncHandler(async (req, res) => {
     const { videoId } = req.params;
+
+    if(!videoId){
+        throw new ApiError(400, "Video id is required.")
+    }
+
     isValidVideoId(videoId);
 
     const { title, description } = req.body;
@@ -191,6 +201,11 @@ const updateVideo = asyncHandler(async (req, res) => {
 
 const deleteVideo = asyncHandler(async (req, res) => {
     const { videoId } = req.params;
+    
+    if(!videoId){
+        throw new ApiError(400, "Video id is required.")
+    }
+
     isValidVideoId(videoId);
 
     const deletedVideo = await Video.findByIdAndDelete(videoId);
