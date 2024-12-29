@@ -36,10 +36,19 @@ const isValidCommentId = (commentId) => {
 
     }
 }
+const isValidPlaylistId = (playlistId) => {
+    const isValid = isValidObjectId(playlistId);
+
+    if (!isValid) {
+        throw new ApiError(400, "Invalid playlist id format.")
+
+    }
+}
 
 export {
     isValidVideoId,
     isValidCommentId,
     isValidUserId,
-    isValidTweetId
+    isValidTweetId,
+    isValidPlaylistId
 };
